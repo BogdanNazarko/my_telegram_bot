@@ -48,6 +48,9 @@ bot.on('text', (ctx) => {
 });
 // Запускаємо бота
 // Ця функція вмикає бота і змушує його слухати вхідні повідомлення
+server.listen(port, () => {
+   console.log(`Web server is listening on port ${port}`);
+});
 bot.launch();
 
 // Вивід повідомлення в консоль, коли бот запущено
