@@ -2,7 +2,7 @@
 const { Telegraf } = require('telegraf');
 const { sendRandomPhoto, sendRandomMusicLink, sendRandomMotivation } = require('./func');
 
-const bot = new Telegraf('7739133522:AAEr7zan75lugxjifLe9Q4Ox5zxEY710B48');
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
 // Обробник команди /start
 bot.start((ctx) => {
