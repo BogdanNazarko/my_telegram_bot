@@ -151,6 +151,7 @@ function sendRandomMotivation(ctx) {
 module.exports = {
    sendRandomPhoto,
    sendRandomMusicLink,
-   sendRandomMotivation
+   sendRandomMotivation,
+   sendWeather
 };
 
