@@ -48,6 +48,51 @@ const motivationTexts = [
 ];
 //@param {Object} ctx;
 
+const axios = require('axios'); // Додаємо імпорт axios
+
+// --- Початок нового функціоналу погоди ---
+async function sendWeather(ctx, city) {
+   const apiKey = process.env.OPENWEATHER_API_KEY;
+   const lang = 'ua'; // Мова відповіді (українська)
+   const units = 'metric'; // Одиниці виміру (метричні: Цельсій)
+
+   if (!city) {
+      ctx.reply('Будь ласка, введіть назву міста.');
+      return;
+   }
+   if (!apiKey) {
+      console.error('API ключ OpenWeatherMap не знайдено в змінних оточення!');
+      ctx.reply('На жаль, не вдалося отримати прогноз погоди. Будь ласка, спробуйте пізніше.');
+      return;
+   }
+
+   try {
+      const response = await axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${units}&lang=${lang}`);
+
+      const data = response.data;
+      const weatherDescription = data.weather[0].description;
+      const temperature = data.main.temp;
+      const feelsLike = data.main.feels_like;
+      const humidity = data.main.humidity;
+      const windSpeed = data.wind.speed;
+
+      let message = `**Погода у місті ${data.name}:**\n`;
+      message += `_Опис:_ ${weatherDescription}\n`;
+      message += `_Температура:_ ${temperature}°C (відчувається як ${feelsLike}°C)\n`;
+      message += `_Вологість:_ ${humidity}%\n`;
+      message += `_Швидкість вітру:_ ${windSpeed} м/с`;
+
+      ctx.replyWithMarkdownV2(message); // Відправляємо повідомлення з форматуванням MarkdownV2
+   } catch (error) {
+      console.error('Помилка при отриманні погоди:', error.response ? error.response.data : error.message);
+      if (error.response && error.response.status === 404) {
+         ctx.reply(`На жаль, місто "${city}" не знайдено. Перевірте назву.`);
+      } else {
+         ctx.reply('На жаль, не вдалося отримати прогноз погоди. Спробуйте пізніше.');
+      }
+   }
+}
+
 function sendRandomPhoto(ctx) {
    const randomIndex = Math.floor(Math.random() * photoPaths.length);
    const randomPhotoPath = photoPaths[randomIndex];

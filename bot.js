@@ -1,9 +1,11 @@
+require('dotenv').config();
 
 const { Telegraf } = require('telegraf');
 const { sendRandomPhoto, sendRandomMusicLink, sendRandomMotivation } = require('./func');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+const userStates = {};
 // Обробник команди /start
 bot.start((ctx) => {
    // ctx (context) - це об'єкт, який містить інформацію про поточне повідомлення,
@@ -27,24 +29,37 @@ bot.hears('Motivation', (ctx) => {
    sendRandomMotivation(ctx);
 });
 
+bot.hears('Weather', (ctx) => {
+   userStates[ctx.from.id] = 'waiting_for_city'; // Встановлюємо стан: чекаємо назву міста
+   ctx.reply('Будь ласка, введіть назву міста:');
+});
 // Обробник для БУДЬ-ЯКОГО текстового повідомлення від користувача
 // Ця функція спрацьовує, коли користувач надсилає будь-який текст (крім команд, що починаються з '/')
-bot.on('text', (ctx) => {
-   // клавіатура з кнопками
-   const keyboard = {
-      reply_markup: {
-         keyboard: [
-            [{ text: 'Cute photo' }],
-            [{ text: 'Cool music' }],
-            [{ text: 'Motivation' }]
-         ],
-         resize_keyboard: true, // Зробити клавіатуру меншою
-         one_time_keyboard: false // Залишити клавіатуру після використання
-      }
-   };
+// Змінюємо обробник для БУДЬ-ЯКОГО текстового повідомлення
+bot.on('text', async (ctx) => { // Зробили функцію async, щоб можна було використовувати await
+   const userId = ctx.from.id;
+   const userMessage = ctx.message.text;
 
-   // Надсилаємо повідомлення разом з клавіатурою
-   ctx.reply('Choose what do u want to get:', keyboard);
+   if (userStates[userId] === 'waiting_for_city') {
+      // Якщо бот чекає місто від цього користувача
+      userStates[userId] = null; // Скидаємо стан
+      await sendWeather(ctx, userMessage); // Викликаємо функцію погоди з назвою міста
+   } else {
+      // Якщо бот не чекає місто, показуємо звичайну клавіатуру
+      const keyboard = {
+         reply_markup: {
+            keyboard: [
+               [{ text: 'Cute photo' }],
+               [{ text: 'Cool music' }],
+               [{ text: 'Motivation' }],
+               [{ text: 'Weather' }] // Додаємо нову кнопку
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: false
+         }
+      };
+      ctx.reply('Choose what do u want to get:', keyboard);
+   }
 });
 // Запускаємо бота
 // Ця функція вмикає бота і змушує його слухати вхідні повідомлення
