@@ -96,7 +96,7 @@ async function sendWeather(ctx, city) {
       let message = `*Погода у місті ${escapeMarkdownV2(data.name)}:*\n`;
       message += `_Опис:_ ${escapeMarkdownV2(weatherDescription)}\n`;
       // Важливо: перетворюємо числа на рядки перед екрануванням
-      message += `_Температура:_ ${escapeMarkdownV2(temperature.toString())}°C (відчувається як ${escapeMarkdownV2(feelsLike.toString())}°C)\n`;
+      message += `_Температура:_ ${escapeMarkdownV2(temperature.toString())}°C \\(відчувається як ${escapeMarkdownV2(feelsLike.toString())}°C)\n`;
       message += `_Вологість:_ ${escapeMarkdownV2(humidity.toString())}%\n`;
       message += `_Швидкість вітру:_ ${escapeMarkdownV2(windSpeed.toString())} м\\/с`; // Спеціально екрануємо /
 
