@@ -52,11 +52,15 @@ const axios = require('axios'); // Додаємо імпорт axios
 
 // --- Нова допоміжна функція для екранування символів MarkdownV2 ---
 function escapeMarkdownV2(text) {
+   // УВАГА: Важливо, щоб цей список був повним і включав всі спецсимволи MarkdownV2
    const specialChars = [
       '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'
    ];
    let escapedText = text;
+   // Екрануємо кожен спецсимвол
    for (const char of specialChars) {
+      // Для регулярних виразів деякі символи теж є спецсимволами, тому їх теж треба екранувати
+      // Наприклад, '(' у RegExp означає початок групи, тому для пошуку '(' треба шукати '\('
       escapedText = escapedText.replace(new RegExp('\\' + char, 'g'), '\\' + char);
    }
    return escapedText;
@@ -89,11 +93,12 @@ async function sendWeather(ctx, city) {
       const humidity = data.main.humidity;
       const windSpeed = data.wind.speed;
 
-      let message = `*Погода у місті ${escapeMarkdownV2(data.name)}:*\n`; // data.name може містити символи
+      let message = `*Погода у місті ${escapeMarkdownV2(data.name)}:*\n`;
       message += `_Опис:_ ${escapeMarkdownV2(weatherDescription)}\n`;
-      message += `_Температура:_ ${escapeMarkdownV2(temperature.toString())}°C (відчувається як ${escapeMarkdownV2(feelsLike.toString())}°C)\n`; // Температури можуть містити крапки
+      // Важливо: перетворюємо числа на рядки перед екрануванням
+      message += `_Температура:_ ${escapeMarkdownV2(temperature.toString())}°C (відчувається як ${escapeMarkdownV2(feelsLike.toString())}°C)\n`;
       message += `_Вологість:_ ${escapeMarkdownV2(humidity.toString())}%\n`;
-      message += `_Швидкість вітру:_ ${escapeMarkdownV2(windSpeed.toString())} м\\/с`; // Екрануємо "/" для "м/с"
+      message += `_Швидкість вітру:_ ${escapeMarkdownV2(windSpeed.toString())} м\\/с`; // Спеціально екрануємо /
 
       ctx.replyWithMarkdownV2(message); // Відправляємо повідомлення з форматуванням MarkdownV2
    } catch (error) {
