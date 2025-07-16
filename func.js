@@ -50,6 +50,19 @@ const motivationTexts = [
 
 const axios = require('axios'); // Додаємо імпорт axios
 
+// --- Нова допоміжна функція для екранування символів MarkdownV2 ---
+function escapeMarkdownV2(text) {
+   const specialChars = [
+      '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'
+   ];
+   let escapedText = text;
+   for (const char of specialChars) {
+      escapedText = escapedText.replace(new RegExp('\\' + char, 'g'), '\\' + char);
+   }
+   return escapedText;
+}
+// --- Кінець допоміжної функції ---
+
 // --- Початок нового функціоналу погоди ---
 async function sendWeather(ctx, city) {
    const apiKey = process.env.OPENWEATHER_API_KEY;
@@ -76,11 +89,11 @@ async function sendWeather(ctx, city) {
       const humidity = data.main.humidity;
       const windSpeed = data.wind.speed;
 
-      let message = `**Погода у місті ${data.name}:**\n`;
-      message += `_Опис:_ ${weatherDescription}\n`;
-      message += `_Температура:_ ${temperature}°C (відчувається як ${feelsLike}°C)\n`;
-      message += `_Вологість:_ ${humidity}%\n`;
-      message += `_Швидкість вітру:_ ${windSpeed} м/с`;
+      let message = `*Погода у місті ${escapeMarkdownV2(data.name)}:*\n`; // data.name може містити символи
+      message += `_Опис:_ ${escapeMarkdownV2(weatherDescription)}\n`;
+      message += `_Температура:_ ${escapeMarkdownV2(temperature.toString())}°C (відчувається як ${escapeMarkdownV2(feelsLike.toString())}°C)\n`; // Температури можуть містити крапки
+      message += `_Вологість:_ ${escapeMarkdownV2(humidity.toString())}%\n`;
+      message += `_Швидкість вітру:_ ${escapeMarkdownV2(windSpeed.toString())} м\\/с`; // Екрануємо "/" для "м/с"
 
       ctx.replyWithMarkdownV2(message); // Відправляємо повідомлення з форматуванням MarkdownV2
    } catch (error) {
