@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const { Telegraf } = require('telegraf');
-const { sendRandomPhoto, sendRandomMusicLink, sendRandomMotivation } = require('./func');
+const { sendRandomPhoto, sendRandomMusicLink, sendRandomMotivation, sendWeather } = require('./func');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
