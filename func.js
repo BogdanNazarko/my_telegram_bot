@@ -93,14 +93,13 @@ async function sendWeather(ctx, city) {
       const humidity = data.main.humidity;
       const windSpeed = data.wind.speed;
 
-      let message = `*Погода у місті ${escapeMarkdownV2(data.name)}:*\n`;
-      message += `_Опис:_ ${escapeMarkdownV2(weatherDescription)}\n`;
-      // Важливо: перетворюємо числа на рядки перед екрануванням
-      message += `_Температура:_ ${escapeMarkdownV2(temperature.toString())}°C \\(відчувається як ${escapeMarkdownV2(feelsLike.toString())}°C)\n`;
-      message += `_Вологість:_ ${escapeMarkdownV2(humidity.toString())}%\n`;
-      message += `_Швидкість вітру:_ ${escapeMarkdownV2(windSpeed.toString())} м\\/с`; // Спеціально екрануємо /
+      let message = `*Погода у місті ${data.name}:*\n`; // Забираємо окремі escapeMarkdownV2
+      message += `_Опис:_ ${weatherDescription}\n`;
+      message += `_Температура:_ ${temperature}°C (відчувається як ${feelsLike}°C)\n`;
+      message += `_Вологість:_ ${humidity}%\n`;
+      message += `_Швидкість вітру:_ ${windSpeed} м/с`; // Не забувай, що / може знадобитися екранувати окремо, якщо це не робить універсальний escape
 
-      ctx.replyWithMarkdownV2(message); // Відправляємо повідомлення з форматуванням MarkdownV2
+      ctx.replyWithMarkdownV2(escapeMarkdownV2(message)); // Застосовуємо екранування до всього повідомлення
    } catch (error) {
       console.error('Помилка при отриманні погоди:', error.response ? error.response.data : error.message);
       if (error.response && error.response.status === 404) {
