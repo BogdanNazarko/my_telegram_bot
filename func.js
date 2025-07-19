@@ -77,11 +77,6 @@ async function sendWeather(ctx, city) {
       ctx.reply('Будь ласка, введіть назву міста.');
       return;
    }
-   if (!apiKey) {
-      console.error('API ключ OpenWeatherMap не знайдено в змінних оточення!');
-      ctx.reply('На жаль, не вдалося отримати прогноз погоди. Будь ласка, спробуйте пізніше.');
-      return;
-   }
 
    try {
       const response = await axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${units}&lang=${lang}`);
@@ -93,13 +88,13 @@ async function sendWeather(ctx, city) {
       const humidity = data.main.humidity;
       const windSpeed = data.wind.speed;
 
-      let message = `*Погода у місті ${data.name}:*\n`; // Забираємо окремі escapeMarkdownV2
-      message += `_Опис:_ ${weatherDescription}\n`;
-      message += `_Температура:_ ${temperature}°C (відчувається як ${feelsLike}°C)\n`;
-      message += `_Вологість:_ ${humidity}%\n`;
-      message += `_Швидкість вітру:_ ${windSpeed} м/с`; // Не забувай, що / може знадобитися екранувати окремо, якщо це не робить універсальний escape
+      let message = `*_Погода у місті_ ${escapeMarkdownV2(data.name)}:*\\\n`; // Забираємо окремі escapeMarkdownV2
+      message += `_Опис:_ ${escapeMarkdownV2(weatherDescription)}\\\n`;
+      message += `_Температура_: ${escapeMarkdownV2(temperature)}\\°C \\(відчувається як ${escapeMarkdownV2(feelsLike)}°C\\)\\\n`;
+      message += `_Вологість:_ ${escapeMarkdownV2(humidity)}\\%\\\n`;
+      message += `_Швидкість вітру: ${escapeMarkdownV2(windSpeed)} м\\/с`; // Не забувай, що / може знадобитися екранувати окремо, якщо це не робить універсальний escape
 
-      ctx.replyWithMarkdownV2(escapeMarkdownV2(message)); // Застосовуємо екранування до всього повідомлення
+      ctx.replyWithMarkdownV2(message); // Застосовуємо екранування до всього повідомлення
    } catch (error) {
       console.error('Помилка при отриманні погоди:', error.response ? error.response.data : error.message);
       if (error.response && error.response.status === 404) {
@@ -169,6 +164,8 @@ module.exports = {
    sendRandomPhoto,
    sendRandomMusicLink,
    sendRandomMotivation,
-   sendWeather
+   sendWeather,
+   escapeMarkdownV2
+
 };
 
